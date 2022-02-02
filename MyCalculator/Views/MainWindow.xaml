@@ -36,10 +36,10 @@
         </Grid.RowDefinitions>
         
         <TextBlock x:Name="expression" Grid.Row="0" FontSize="24" FontFamily="Arial" TextAlignment="Right" VerticalAlignment="Bottom"
-                   Background="LightGray" Padding="5" Foreground="DimGray" Text="{Binding Path=Expression, Mode=TwoWay}"/>
+                   Background="LightGray" Padding="5" Foreground="DimGray" Text="{Binding Path=Expression}"/>
         
         <TextBlock x:Name="display" Grid.Row="1" FontSize="36" FontFamily="Arial" TextAlignment="Right" VerticalAlignment="Bottom"
-                   Background="LightGray" Padding="5" Text="{Binding Path=Display, Mode=TwoWay}"/>
+                   Background="LightGray" Padding="5" Text="{Binding Path=Display}"/>
         
         <Grid Grid.Row="2" Background="DarkGray">  
             <Grid.ColumnDefinitions>
@@ -60,11 +60,11 @@
             
             <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontSize="16" FontStyle="Italic" Content="C" 
                     Margin="4 12 4 4" Background="DimGray" Foreground="White" Style="{StaticResource ButtonStyle}"
-                    Command="{Binding DigitButtonPressCommand}" CommandParameter="C"/>
+                    Command="{Binding ClearButtonPressCommand}"/>
             
             <Button Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" FontSize="16" FontStyle="Italic" Content="←" 
                     Margin="4 12 4 4" Background="DimGray" Foreground="White" Style="{StaticResource ButtonStyle}"
-                    Command="{Binding DigitButtonPressCommand}" CommandParameter="Del"/>
+                    Command="{Binding DeleteButtonPressCommand}"/>
 
             <Button Grid.Column="0" Grid.Row="1" FontSize="14" FontStyle="Italic" Content="cos(x)" 
                     Background="#FFEA733B" Style="{StaticResource ButtonStyle}"

@@ -7,10 +7,13 @@ using System.Windows.Input;
 
 namespace MyCalculator
 {
-    class RelayCommand:ICommand
+    class RelayCommand : ICommand
     {
+        //реализация интерфейса ICommand для обработки команд ViewModel
+
         private readonly Action<object> execute;
         private readonly Func<object, bool> canExecute;
+
         public event EventHandler CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
@@ -22,7 +25,6 @@ namespace MyCalculator
             execute = Execute ?? throw new ArgumentNullException(nameof(Execute));
             canExecute = CanExecute;
         }
-
 
         public bool CanExecute(object parameter) => canExecute?.Invoke(parameter) ?? true;
 

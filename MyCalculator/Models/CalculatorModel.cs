@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace MyCalculator.Models
 {
+    //логика работы калькулятора
     public class CalculatorModel
     {
-        private string result;
+        private string result;      //поле хранящее значение результата операции
 
-        public string FirstOperand { get; set; }
+        public string FirstOperand { get; set; }        //автосвойство хранящее значение первого операнда
 
-        public string SecondOperand { get; set; }
+        public string SecondOperand { get; set; }              //автосвойство хранящее значение второго операнда
 
-        public string Operation { get; set; }
+        public string Operation { get; set; }       //автосвойство хранящее значение символа операции
 
         public string Result { get => result; }
 
@@ -26,12 +27,12 @@ namespace MyCalculator.Models
             result = string.Empty;
         }
 
-        private double DegreeToRadian(double angle)
+        private double DegreeToRadian(double angle)     //метод переводящий углы из градусов в радианы (для вычисления тригонометрических функций)
         {
             return Math.PI * angle / 180.0;
         }
 
-        public void CalculateResult()
+        public void CalculateResult()       //метод производящий вычисления
         {
             ValidateOperation();
             try
@@ -95,7 +96,7 @@ namespace MyCalculator.Models
             }
         }
 
-        private void ValidateOperand(string operand)
+        private void ValidateOperand(string operand)        //метод проверяющий корректность операндов
         {
             try
             {
@@ -107,7 +108,7 @@ namespace MyCalculator.Models
             }
         }
 
-        private void ValidateOperation()
+        private void ValidateOperation()        //метод проверяющий корректность заданной операции
         {
             switch (Operation)
             {

@@ -12,49 +12,50 @@ namespace MyCalculator.ViewModels
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
+        //реализация интерфейса INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-        void OnPropertyChanged([CallerMemberName]string PropertyName = null)
+        void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        private string lastOperation;
-        private bool newDisplayRequired = false;
-        private string expression;
-        private string display = "0";
+        private string lastOperation;       //поле хранящее символ последней нажатой клавиши операции
+        private bool newDisplayRequired = false;        //поле хранящее логическое значение что при вводе следующего символа дисплей должен быть предварительно очищен
+        private string expression;      //поле хранящее выражение производимых вычислений
+        private string display = "0";       //поле хранящее значение отображаемое на дисплее калькулятора
 
-        private CalculatorModel calculator = new CalculatorModel();
+        private CalculatorModel calculator = new CalculatorModel();     //создание экземпляра калькулятора
 
-        public string FirstOperand
+        public string FirstOperand      //свойство через которое осуществляется взаимодействие с полем FirstOperand модели калькулятора
         {
             get => calculator.FirstOperand;
             set => calculator.FirstOperand = value;
         }
 
-        public string SecondOperand
+        public string SecondOperand      //свойство через которое осуществляется взаимодействие с полем SecondOperand модели калькулятора
         {
             get => calculator.SecondOperand;
             set => calculator.SecondOperand = value;
         }
 
-        public string Operation
+        public string Operation      //свойство через которое осуществляется взаимодействие с полем Operation модели калькулятора        
         {
             get => calculator.Operation;
             set => calculator.Operation = value;
         }
 
-        public string LastOperation
+        public string LastOperation      //свойство через которое осуществляется взаимодействие с полем lastOperation
         {
             get => lastOperation;
             set => lastOperation = value;
         }
 
-        public string Result
+        public string Result      //свойство через которое осуществляется взаимодействие с полем Result 
         {
             get => calculator.Result;
         }
 
-        public string Display
+        public string Display      //свойство через которое осуществляется взаимодействие с полем display 
         {
             get
             {
@@ -70,7 +71,7 @@ namespace MyCalculator.ViewModels
             }
         }
 
-        public string Expression
+        public string Expression      //свойство через которое осуществляется взаимодействие с полем expression 
         {
             get => expression;
             set
@@ -78,40 +79,62 @@ namespace MyCalculator.ViewModels
                 expression = value;
                 OnPropertyChanged();
             }
-        }       
+        }
 
-        public ICommand DigitButtonPressCommand { get; }
+        public ICommand ClearButtonPressCommand { get; }        //команда нажатия клавиши Clear
+
+        public void OnClearButtonPressCommandExecute(object p)
+        {
+            Display = "0";
+            FirstOperand = string.Empty;
+            SecondOperand = string.Empty;
+            Operation = string.Empty;
+            LastOperation = string.Empty;
+            Expression = string.Empty;
+            newDisplayRequired = false;
+        }
+
+        public bool CanClearButtonPressCommandExecuted(object p)
+        {
+            return true;
+        }
+
+        public ICommand DeleteButtonPressCommand { get; }        //команда нажатия клавиши Delete
+
+        public void OnDeleteButtonPressCommandExecute(object p)
+        {
+            if (Display.Length > 1)
+                Display = Display.Substring(0, Display.Length - 1);
+            else
+                Display = "0";            
+        }
+
+        public bool CanDeleteButtonPressCommandExecuted(object p)
+        {
+            if (Display == "ERROR")
+                return false;
+            else
+                return true;
+        }
+
+        public ICommand DigitButtonPressCommand { get; }        //команда нажатия цифровых клавиш
 
         public void OnDigitButtonPressCommandExecute(object p)
         {
             string button = (string)p;
             switch (button)
-            {
-                case "C":
-                    Display = "0";
-                    FirstOperand = string.Empty;
-                    SecondOperand = string.Empty;
-                    Operation = string.Empty;
-                    LastOperation = string.Empty;
-                    Expression = string.Empty;
-                    break;
-                case "Del":
-                    if (Display.Length > 1)
-                        Display = Display.Substring(0, Display.Length - 1);
-                    else 
-                        Display = "0";
-                    break;
+            {                
                 case "+/-":
                     if (Display.Contains("-"))
                         Display = Display.Remove(Display.IndexOf("-"), 1);
-                    else 
+                    else
                         Display = "-" + Display;
                     break;
                 case ",":
                     if (newDisplayRequired)
-                        Display = "0,";                    
+                        Display = "0,";
                     else if (!Display.Contains(","))
-                        Display += ",";                   
+                        Display += ",";
                     break;
                 default:
                     if (Display == "0" || newDisplayRequired)
@@ -123,14 +146,17 @@ namespace MyCalculator.ViewModels
             newDisplayRequired = false;
         }
 
-        public static bool CanDigitButtonPressCommandExecuted(object p)
+        public bool CanDigitButtonPressCommandExecuted(object p)
         {
-            return true;
+            if (Display == "ERROR")
+                return false;
+            else
+                return true;
         }
 
-        public ICommand SingleOperationButtonPressCommand { get; }
+        public ICommand SingleOperationButtonPressCommand { get; }      //команда нажатия клавиш операций, выполняемых с одним операндом
 
-        public void OnSingleOperationButtonPressCommand(object p)
+        public void OnSingleOperationButtonPressCommandExecute(object p)
         {
             string operation = (string)p;
             try
@@ -150,14 +176,17 @@ namespace MyCalculator.ViewModels
             }
         }
 
-        public bool CanSingleOperationButtonPressCommand(object p)
+        public bool CanSingleOperationButtonPressCommandExecuted(object p)
         {
-            return true;
+            if (Display == "ERROR")
+                return false;
+            else
+                return true;
         }
 
-        public ICommand DoubleOperationButtonPressCommand { get; }
+        public ICommand DoubleOperationButtonPressCommand { get; }      //команда нажатия клавиш операций, выполняемых с двумя операндами
 
-        public void OnDoubleOperationButtonPressCommand(object p)
+        public void OnDoubleOperationButtonPressCommandExecute(object p)
         {
             string operation = (string)p;
             try
@@ -188,14 +217,20 @@ namespace MyCalculator.ViewModels
 
         public bool CanDoubleOperationButtonPressCommand(object p)
         {
-            return true;
+            if (Display == "ERROR")
+                return false;
+            else
+                return true;
         }
 
         public MainWindowViewModel()
         {
+            //передача управления командами в RelayCommand
             DigitButtonPressCommand = new RelayCommand(OnDigitButtonPressCommandExecute, CanDigitButtonPressCommandExecuted);
-            SingleOperationButtonPressCommand = new RelayCommand(OnSingleOperationButtonPressCommand, CanSingleOperationButtonPressCommand);
-            DoubleOperationButtonPressCommand = new RelayCommand(OnDoubleOperationButtonPressCommand, CanDoubleOperationButtonPressCommand);
+            SingleOperationButtonPressCommand = new RelayCommand(OnSingleOperationButtonPressCommandExecute, CanSingleOperationButtonPressCommandExecuted);
+            DoubleOperationButtonPressCommand = new RelayCommand(OnDoubleOperationButtonPressCommandExecute, CanDoubleOperationButtonPressCommand);
+            ClearButtonPressCommand = new RelayCommand(OnClearButtonPressCommandExecute, CanClearButtonPressCommandExecuted);
+            DeleteButtonPressCommand = new RelayCommand(OnDeleteButtonPressCommandExecute, CanDeleteButtonPressCommandExecuted);
         }
     }
 }
