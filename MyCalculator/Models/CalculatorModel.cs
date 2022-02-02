@@ -26,32 +26,14 @@ namespace MyCalculator.Models
             result = string.Empty;
         }
 
-        public CalculatorModel(string firstOperand, string operation) 
+        private double DegreeToRadian(double angle)
         {
-            ValidateOperand(firstOperand);            
-            ValidateOperation(operation);
-
-            FirstOperand = firstOperand;
-            SecondOperand = string.Empty;
-            Operation = operation;
-            result = string.Empty;
-        }
-
-        public CalculatorModel(string firstOperand, string secondOperand, string operation)
-        {
-            ValidateOperand(firstOperand);
-            ValidateOperand(secondOperand);
-            ValidateOperation(operation);
-
-            FirstOperand = firstOperand;
-            SecondOperand = secondOperand;
-            Operation = operation;
-            result = string.Empty;
+            return Math.PI * angle / 180.0;
         }
 
         public void CalculateResult()
         {
-            ValidateData();
+            ValidateOperation();
             try
             {
                 switch (Operation)
@@ -73,7 +55,10 @@ namespace MyCalculator.Models
                         break;
 
                     case ("1/x"):
-                        result = (1 / (Convert.ToDouble(FirstOperand))).ToString();
+                        if (Convert.ToDouble(FirstOperand) != 0)
+                            result = (1 / (Convert.ToDouble(FirstOperand))).ToString();
+                        else
+                            throw new Exception();
                         break;
 
                     case ("sqr"):
@@ -81,13 +66,31 @@ namespace MyCalculator.Models
                         break;
 
                     case ("sqrt"):
-                        result = Math.Sqrt(Convert.ToDouble(FirstOperand)).ToString();
+                        if (Convert.ToDouble(FirstOperand) >= 0)
+                            result = Math.Sqrt(Convert.ToDouble(FirstOperand)).ToString();
+                        else
+                            throw new Exception();
+                        break;
+
+                    case ("cos"):
+                        result = Math.Cos(DegreeToRadian(Convert.ToDouble(FirstOperand))).ToString();
+                        break;
+
+                    case ("sin"):
+                        result = Math.Sin(DegreeToRadian(Convert.ToDouble(FirstOperand))).ToString();
+                        break;
+
+                    case ("tan"):
+                        result = Math.Tan(DegreeToRadian(Convert.ToDouble(FirstOperand))).ToString();
+                        break;
+
+                    case ("log"):
+                        result = Math.Log(Convert.ToDouble(FirstOperand)).ToString();
                         break;
                 }
             }
             catch (Exception)
             {
-                result = "ERROR";
                 throw;
             }
         }
@@ -100,30 +103,11 @@ namespace MyCalculator.Models
             }
             catch (Exception)
             {
-                result = "ERROR";
                 throw;
             }
         }
 
-        private void ValidateOperation(string operation)
-        {
-            switch (operation)
-            {
-                case "/":
-                case "*":
-                case "-":
-                case "+":
-                case "1/x":
-                case "sqr":
-                case "sqrt":
-                    break;
-                default:
-                    result = "ERROR";
-                    throw new ArgumentException("Unknown Operation: " + operation, "operation");
-            }
-        }
-
-        private void ValidateData()
+        private void ValidateOperation()
         {
             switch (Operation)
             {
@@ -137,11 +121,14 @@ namespace MyCalculator.Models
                 case "1/x":
                 case "sqr":
                 case "sqrt":
+                case "cos":
+                case "sin":
+                case "tan":
+                case "log":
                     ValidateOperand(FirstOperand);
                     break;
                 default:
-                    result = "ERROR ";
-                    throw new ArgumentException("Unknown Operation: " + Operation, "operation");
+                    throw new Exception();
             }
         }
     }

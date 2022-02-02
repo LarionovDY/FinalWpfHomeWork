@@ -13,15 +13,15 @@ namespace MyCalculator.ViewModels
     class MainWindowViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        void OnPropertyChanged([CallerMemberName]string PropertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         private string lastOperation;
         private bool newDisplayRequired = false;
-        private string fullExpression;
-        private string display;
+        private string expression;
+        private string display = "0";
 
         private CalculatorModel calculator = new CalculatorModel();
 
@@ -56,7 +56,13 @@ namespace MyCalculator.ViewModels
 
         public string Display
         {
-            get => display;
+            get
+            {
+                if (display.Length > 11)
+                    return display.Substring(0, 11);
+                else
+                    return display;
+            }
             set
             {
                 display = value;
@@ -64,21 +70,22 @@ namespace MyCalculator.ViewModels
             }
         }
 
-        public string FullExpression
+        public string Expression
         {
-            get => fullExpression;
+            get => expression;
             set
             {
-                fullExpression = value;
+                expression = value;
                 OnPropertyChanged();
             }
-        }
+        }       
 
         public ICommand DigitButtonPressCommand { get; }
 
-        public void OnDigitButtonPressCommandExecute(string button)
+        public void OnDigitButtonPressCommandExecute(object p)
         {
-            switch (button) //рефакторить
+            string button = (string)p;
+            switch (button)
             {
                 case "C":
                     Display = "0";
@@ -86,47 +93,109 @@ namespace MyCalculator.ViewModels
                     SecondOperand = string.Empty;
                     Operation = string.Empty;
                     LastOperation = string.Empty;
-                    FullExpression = string.Empty;
+                    Expression = string.Empty;
                     break;
                 case "Del":
-                    if (display.Length > 1)
-                        Display = display.Substring(0, display.Length - 1);
-                    else Display = "0";
+                    if (Display.Length > 1)
+                        Display = Display.Substring(0, Display.Length - 1);
+                    else 
+                        Display = "0";
                     break;
                 case "+/-":
-                    if (display.Contains("-") || display == "0")
-                    {
-                        Display = display.Remove(display.IndexOf("-"), 1);
-                    }
-                    else Display = "-" + display;
+                    if (Display.Contains("-"))
+                        Display = Display.Remove(Display.IndexOf("-"), 1);
+                    else 
+                        Display = "-" + Display;
                     break;
-                case ".":
+                case ",":
                     if (newDisplayRequired)
-                    {
-                        Display = "0.";
-                    }
-                    else
-                    {
-                        if (!display.Contains("."))
-                        {
-                            Display = display + ".";
-                        }
-                    }
+                        Display = "0,";                    
+                    else if (!Display.Contains(","))
+                        Display += ",";                   
                     break;
                 default:
-                    if (display == "0" || newDisplayRequired)
+                    if (Display == "0" || newDisplayRequired)
                         Display = button;
                     else
-                        Display = display + button;
+                        Display += button;
                     break;
             }
             newDisplayRequired = false;
         }
 
-        private static bool CanDigitButtonPressCommandExecuted(string button)
+        public static bool CanDigitButtonPressCommandExecuted(object p)
         {
             return true;
         }
 
+        public ICommand SingleOperationButtonPressCommand { get; }
+
+        public void OnSingleOperationButtonPressCommand(object p)
+        {
+            string operation = (string)p;
+            try
+            {
+                FirstOperand = Display;
+                Operation = operation;
+                calculator.CalculateResult();
+                Expression = Operation + "(" + Math.Round(Convert.ToDouble(FirstOperand), 5) + ") = ";
+                LastOperation = "=";
+                Display = Result;
+                FirstOperand = Display;
+                newDisplayRequired = true;
+            }
+            catch (Exception)
+            {
+                Display = "ERROR";
+            }
+        }
+
+        public bool CanSingleOperationButtonPressCommand(object p)
+        {
+            return true;
+        }
+
+        public ICommand DoubleOperationButtonPressCommand { get; }
+
+        public void OnDoubleOperationButtonPressCommand(object p)
+        {
+            string operation = (string)p;
+            try
+            {
+                if (FirstOperand == string.Empty || LastOperation == "=")
+                {
+                    FirstOperand = Display;
+                    LastOperation = operation;
+                }
+                else
+                {
+                    SecondOperand = Display;
+                    Operation = LastOperation;
+                    calculator.CalculateResult();
+                    Expression = Math.Round(Convert.ToDouble(FirstOperand), 5) + " "
+                        + Operation + " " + Math.Round(Convert.ToDouble(SecondOperand), 5) + " = ";
+                    LastOperation = operation;
+                    Display = Result;
+                    FirstOperand = Display;
+                }
+                newDisplayRequired = true;
+            }
+            catch (Exception)
+            {
+                Display = "ERROR";
+            }
+        }
+
+        public bool CanDoubleOperationButtonPressCommand(object p)
+        {
+            return true;
+        }
+
+        public MainWindowViewModel()
+        {
+            DigitButtonPressCommand = new RelayCommand(OnDigitButtonPressCommandExecute, CanDigitButtonPressCommandExecuted);
+            SingleOperationButtonPressCommand = new RelayCommand(OnSingleOperationButtonPressCommand, CanSingleOperationButtonPressCommand);
+            DoubleOperationButtonPressCommand = new RelayCommand(OnDoubleOperationButtonPressCommand, CanDoubleOperationButtonPressCommand);
+        }
     }
 }
